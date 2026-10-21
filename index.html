@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Minicarrinho de Compras</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+      }
+
+      .produtos {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .card {
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        flex: 1;
+      }
+
+      .card button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .card button:hover {
+        background: #218838;
+      }
+
+      .carrinho-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+      }
+
+      li:hover {
+        background: #eee;
+      }
+
+      .total-box {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 15px;
+        text-align: right;
+      }
+
+      #btn-esvaziar {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      #btn-esvaziar:hover {
+        background: #c82333;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>🍇 Feirinha de Frutas</h2>
+
+    <div class="produtos">
+      <div class="card">
+        <h3>🍎 Maçã</h3>
+        <p>R$ 3,50</p>
+        <button class="btn-add" data-nome="Maçã" data-preco="3.50">
+          Adicionar
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>🍌 Banana</h3>
+        <p>R$ 2,00</p>
+        <button class="btn-add" data-nome="Banana" data-preco="2.00">
+          Adicionar
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>🥑 Abacate</h3>
+        <p>R$ 6,00</p>
+        <button class="btn-add" data-nome="Abacate" data-preco="6.00">
+          Adicionar
+        </button>
+      </div>
+    </div>
+
+    <div class="carrinho-box">
+      <h3>🛒 Seu Carrinho</h3>
+
+      <ul id="lista-carrinho">
+        <!-- Os itens do carrinho vão entrar aq via JS -->
+      </ul>
+
+      <div class="total-box">Total: R$ <span id="valor-total">0.00</span></div>
+
+      <button id="btn-esvaziar">Esvaziar carrinho</button>
+    </div>
+
+    <script>
+      // 1. Mapeamento dos elementos da tela
+      const botoes = document.querySelectorAll(".btn-add");
+      const listaCarrinho = document.querySelector("#lista-carrinho");
+      const valorTotalEl = document.querySelector("#valor-total");
+      const btnEsvaziar = document.querySelector("#btn-esvaziar");
+
+      let total = 0;
+
+      // 2. Adicionar frutas ao carrinho
+      botoes.forEach((botao) => {
+        botao.addEventListener("click", () => {
+          const nome = botao.dataset.nome;
+          const preco = parseFloat(botao.dataset.preco);
+
+          // Procura se a fruta já ta no carrinho
+          let item = listaCarrinho.querySelector(`li[data-nome="${nome}"]`);
+
+          if (item) {
+            // Se já existe, aumenta a quantidade
+            let quantidade = parseInt(item.dataset.quantidade);
+
+            quantidade++;
+
+            item.dataset.quantidade = quantidade;
+
+            item.querySelector(".quantidade").textContent = "x" + quantidade;
+
+            item.querySelector(".preco").textContent =
+              "R$ " + (preco * quantidade).toFixed(2);
+          } else {
+            // Se n existe, cria uma nova linha
+            const li = document.createElement("li");
+
+            li.dataset.nome = nome;
+            li.dataset.preco = preco;
+            li.dataset.quantidade = 1;
+
+            li.innerHTML = `
+            <span>${nome} <span class="quantidade">x1</span></span>
+            <span class="preco">R$ ${preco.toFixed(2)}</span>
+          `;
+
+            // 3. Remover o item ao clicar na linha
+            li.addEventListener("click", () => {
+              const precoItem = parseFloat(li.dataset.preco);
+              const quantidadeItem = parseInt(li.dataset.quantidade);
+
+              total -= precoItem * quantidadeItem;
+              total = Math.max(0, Number(total.toFixed(2)));
+
+              valorTotalEl.textContent = total.toFixed(2);
+
+              li.remove();
+            });
+
+            listaCarrinho.appendChild(li);
+          }
+
+          // 4. Atualizaaar o valor total::
+          total += preco;
+          valorTotalEl.textContent = total.toFixed(2);
+        });
+      });
+
+      // 5. Esvaziar o carrinho:
+      btnEsvaziar.addEventListener("click", () => {
+        listaCarrinho.innerHTML = "";
+
+        total = 0;
+
+        valorTotalEl.textContent = total.toFixed(2);
+      });
+    </script>
+  </body>
+</html>
